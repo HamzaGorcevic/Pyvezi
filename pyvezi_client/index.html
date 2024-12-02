@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="style.css" />
+        <title>Connect Four Game</title>
+    </head>
+    <body>
+        <div id="game-mode-modal" class="modal">
+            <div class="modal-content">
+                <h2>Select Game Mode</h2>
+                <button onclick="game.startGame('man-vs-man')">
+                    Man vs Man
+                </button>
+                <button onclick="game.startGame('man-vs-computer')">
+                    Man vs Computer
+                </button>
+                <button onclick="game.startGame('computer-vs-computer')">
+                    Computer vs Computer
+                </button>
+            </div>
+        </div>
+        <div id="difficulty-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>Select Difficulty</h2>
+                <div id="difficulty-form"></div>
+            </div>
+        </div>
+        
+
+        <div id="game-board" style="display: none"></div>
+        <div id="status" style="display: none">
+            Player Turn: <span id="current-player">Red</span>
+            Time to think: <span id="thinking-time"></span>
+        </div>
+        <button
+            id="restart-btn"
+            style="display: none"
+        >
+            Restart Game
+        </button>
+
+        <script src="app.js"></script>
+    </body>
+</html>
