@@ -167,6 +167,7 @@ class MinMaxABAgent(Agent):
                     return inf,None
                 if finish_state == "yellow":
                     return -inf,None
+                
                 if finish_state == "equal":
                     return 0,None
                 return self.evaluate_state(board), None
@@ -184,8 +185,6 @@ class MinMaxABAgent(Agent):
                     if eval > max_eval:
                         max_eval = eval
                         best_move = move    
-                        print("sto si igro ovde retarde crveni",max_eval,best_move)
-
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break
@@ -199,8 +198,6 @@ class MinMaxABAgent(Agent):
                     if eval < min_eval:
                         min_eval = eval
                         best_move = move
-                        print("sto si igro ovde retarde zuti",min_eval,best_move)
-                        
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break
@@ -211,28 +208,103 @@ class MinMaxABAgent(Agent):
         _, best_move = minimax(board, max_depth, float('-inf'), float('inf'), True)
         elapsed_time = time.time() - time_start
         return best_move,elapsed_time
-    
-class CompVsCompMinMax:
-    def __init__(self, red_heuristic='medium', yellow_heuristic='medium',depth1=4,depth2=4,rows=6, cols=7):
+
+
+class NegScoutAgent(Agent):
+    def get_chosen_column(self, board, max_depth, heuristic='medium'):
+        if heuristic == 'easy':
+            self.evaluate_window_function = self.easy_heuristic
+        elif heuristic == 'medium':
+            self.evaluate_window_function = self.medium_heuristic
+        elif heuristic == 'expert':
+            self.evaluate_window_function = self.expert_heuristic
+        
+        def negscout(board, depth, alpha, beta, maximizing_player):
+            if depth == 0 or self.is_game_over(board, maximizing_player):
+                finish_state = self.is_game_over(board, maximizing_player)
+                if finish_state == "red":
+                    return inf, None
+                if finish_state == "yellow":
+                    return -inf, None
+                if finish_state == "equal":
+                    return 0, None
+                return self.evaluate_state(board), None
+
+            valid_moves = self.get_possible_moves(board)
+            if not valid_moves:
+                return 0, None
+
+            best_move = valid_moves[0]
+            score = float('-inf') if maximizing_player else float('inf')
+
+            for i, move in enumerate(valid_moves):
+                new_board = self.simulate_move(board, move, maximizing_player)
+
+                if i == 0:
+                    # Perform a full-window search for the first child
+                    eval, _ = negscout(new_board, depth - 1, -beta, -alpha, not maximizing_player)
+                    eval = -eval
+                else:
+                    # Perform a null-window search
+                    eval, _ = negscout(new_board, depth - 1, -alpha - 1, -alpha, not maximizing_player)
+                    eval = -eval
+                    # If the null-window search indicates this branch is promising, re-search with a full window
+                    if alpha < eval < beta:
+                        eval, _ = negscout(new_board, depth - 1, -beta, -eval, not maximizing_player)
+                        eval = -eval
+
+                if maximizing_player:
+                    if eval > score:
+                        score = eval
+                        best_move = move
+                    alpha = max(alpha, eval)
+                else:
+                    if eval < score:
+                        score = eval
+                        best_move = move
+                    beta = min(beta, eval)
+
+                if alpha >= beta:
+                    break
+
+            return score, best_move
+
+        time_start = time.time()
+        _, best_move = negscout(board, max_depth, float('-inf'), float('inf'), True)
+        elapsed_time = time.time() - time_start
+        return best_move, elapsed_time
+
+class CompVsComp:
+    def __init__(self, red_heuristic='medium', yellow_heuristic='medium', alg1="minmax", alg2="minmax", depth1=4, depth2=4, rows=6, cols=7):
         self.rows = rows
         self.cols = cols
         self.depth1 = depth1
-        self.depth2 = depth2 
-        self.red_agent = MinMaxABAgent()
-        self.yellow_agent = MinMaxABAgent()
-        self.red_agent.evaluate_window_function = self.red_agent.medium_heuristic
-        self.yellow_agent.evaluate_window_function = self.yellow_agent.medium_heuristic
+        self.depth2 = depth2
         self.board = [[None for _ in range(cols)] for _ in range(rows)]
         self.moves_played = []
 
-        if red_heuristic == 'easy':
-            self.red_agent.evaluate_window_function = self.red_agent.easy_heuristic
-        elif red_heuristic == 'expert':
-            self.red_agent.evaluate_window_function = self.red_agent.expert_heuristic
-        if yellow_heuristic == 'easy':
-            self.yellow_agent.evaluate_window_function = self.yellow_agent.easy_heuristic
-        elif yellow_heuristic == 'expert':
-            self.yellow_agent.evaluate_window_function = self.yellow_agent.expert_heuristic
+        # Initialize agents based on the specified algorithms
+        if alg1 == "negscout":
+            self.red_agent = NegScoutAgent()
+        else:  # Default to MinMax
+            self.red_agent = MinMaxABAgent()
+
+        if alg2 == "negscout":
+            self.yellow_agent = NegScoutAgent()
+        else:  # Default to MinMax
+            self.yellow_agent = MinMaxABAgent()
+
+        # Assign heuristic functions based on specified levels
+        self.red_agent.evaluate_window_function = self.get_heuristic_function(self.red_agent, red_heuristic)
+        self.yellow_agent.evaluate_window_function = self.get_heuristic_function(self.yellow_agent, yellow_heuristic)
+
+    def get_heuristic_function(self, agent, heuristic_level):
+        if heuristic_level == 'easy':
+            return agent.easy_heuristic
+        elif heuristic_level == 'expert':
+            return agent.expert_heuristic
+        else:  # Default to medium
+            return agent.medium_heuristic
 
     def play_game(self):
         current_player = 'red'
