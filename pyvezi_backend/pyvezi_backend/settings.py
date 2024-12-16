@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-7-v2cr^3_05s$f3fb!9547(s(+c76=s2_ztx1nvik03*(b60o9
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "pyvezi.onrender.com",
-    "pyvezi-backend.onrender.com"
+    "https://pyvezi.onrender.com",
+    "https://pyvezi-backend.onrender.com"
 ]
 
 
