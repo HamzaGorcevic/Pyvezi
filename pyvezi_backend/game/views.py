@@ -16,7 +16,7 @@ def computer_move(request):
         else: 
             agent = MinMaxABAgent()
 
-        max_depth = 2 if mode == 'easy' else 5 if mode == 'medium' else 6 if mode == 'expert' else None
+        max_depth = 2 if mode == 'easy' else 5 if mode == 'medium' else 5 if mode == 'expert' else None
         heuristic = mode if mode in ['easy', 'medium', 'expert'] else None
 
         if max_depth is None or heuristic is None:
@@ -42,7 +42,6 @@ def comp_vs_comp(request):
         }
         depth1 = mode_depths.get(mode1, 5)  # Default to medium if invalid mode
         depth2 = mode_depths.get(mode2, 5)  # Default to medium if invalid mode
-
 
         game = CompVsComp(mode1,mode2,algorithm1,algorithm2,depth1,depth2)
         winner,computed_moves = game.play_game()

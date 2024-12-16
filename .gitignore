@@ -1,0 +1,25 @@
+# Byte-compiled files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Django specific
+db.sqlite3
+*.log
+*.pot
+*.py[cod]
+*.sqlite3
+local_settings.py
+
+# Migrations
+**/migrations/*
+!**/migrations/__init__.py
+
+# Media and static files
+/media/
+/staticfiles/

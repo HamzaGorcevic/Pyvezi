@@ -1,79 +1,78 @@
 from copy import deepcopy
 from math import inf
 import time
+
 class Agent:
     def __init__(self):
         self.evaluate_window_function = self.evaluate_window  # Default heuristic
+        self.ROWS = 6
+        self.COLS = 7
 
     def evaluate_window(self, window, player):
         opponent = 'yellow' if player == 'red' else 'red'
         
         if window.count(player) == 4:
-            return 99999  # Win is still lower priority for simplicity
+            return 99999
         elif window.count(player) == 3 and window.count(None) == 1:
             return 2
         elif window.count(player) == 2 and window.count(None) == 2:
             return 1
         elif window.count(opponent) == 3 and window.count(None) == 1:
-            return -20  # Stronger penalty for blocking opponent
+            return -20
         elif window.count(opponent) == 4:
-            return 99990
-
-
+            return -99990
+        return 0
 
     def easy_heuristic(self, window, player):
         opponent = 'yellow' if player == 'red' else 'red'
         score = 0
         if window.count(player) == 4:
-            score += 99999  # Winning move
+            score += 99999
         elif window.count(player) == 3 and window.count(None) == 1:
             score += 10
         elif window.count(player) == 2 and window.count(None) == 2:
             score += 5
         elif window.count(None) == 4:
-            score +=2
+            score += 2
         elif window.count(opponent) == 4:
             score -= 99990
-
         return score
- 
 
     def medium_heuristic(self, window, player):
         opponent = 'yellow' if player == 'red' else 'red'
         score = 0
         if window.count(player) == 4:
-            score += 99999  # Winning move
+            score += 99999
         elif window.count(player) == 3 and window.count(None) == 1:
             score += 10
         elif window.count(player) == 2 and window.count(None) == 2:
             score += 5
         elif window.count(None) == 4:
-            score +=2
+            score += 2
         elif window.count(opponent) == 4:
-            return 99990
+            score -= 99990
         return score
- 
- 
+
     def expert_heuristic(self, window, player):
         opponent = 'yellow' if player == 'red' else 'red'
         score = 0
         if window.count(player) == 4:
-            score += 99999  # Winning move
+            score += 99999
         elif window.count(player) == 3 and window.count(None) == 1:
             score += 10
         elif window.count(player) == 2 and window.count(None) == 2:
             score += 5
         elif window.count(None) == 4:
-            score +=2
+            score += 2
         elif window.count(opponent) == 4:
-            return 99990
+            score -= 99990
         return score
+
     def count_windows(self, board, player):       
         score = 0
         # Horizontal windows
         for row in range(len(board)):
             for col in range(len(board[0]) - 3):
-                # returning all horizontal possibilites
                 window = [board[row][col + i] for i in range(4)]
                 score += self.evaluate_window_function(window, player)
 
@@ -101,7 +100,7 @@ class Agent:
         return self.count_windows(board, 'red') - self.count_windows(board, 'yellow')
 
     def is_game_over(self, board, maximizing_player):
-        return "equal" if all(cell is not None for row in board for cell in row) else self.check_winner(board,maximizing_player)
+        return "equal" if all(cell is not None for row in board for cell in row) else self.check_winner(board, maximizing_player)
 
     def check_winner(self, board, maximizing_player):
         player, opponent = ('red', 'yellow') if maximizing_player else ('yellow', 'red')
@@ -131,28 +130,28 @@ class Agent:
 
         return False
 
-    def get_possible_moves(self, board):
-        moves = []
-        for col in range(len(board[0])):
-            for row in range(len(board) - 1, -1, -1):
-                # we go from bottom row, and we are checking up until we find first none,then we go in next column
-                if board[row][col] is None:
-                    moves.append([row, col])
-                    break
-        return moves
+    def get_valid_columns(self, board):
+        valid_columns = []
+        for col in range(self.COLS):
+            if board[0][col] is None:  # If top row of column is empty
+                valid_columns.append(col)
+        return valid_columns
 
-    def simulate_move(self, board, move, maximizing_player):
+    def get_next_open_row(self, board, col):
+        for row in range(self.ROWS - 1, -1, -1):
+            if board[row][col] is None:
+                return row
+        return None
+
+    def simulate_move(self, board, col, maximizing_player):
         new_board = deepcopy(board)
-        new_board[move[0]][move[1]] = 'red' if maximizing_player else 'yellow'
+        row = self.get_next_open_row(new_board, col)
+        if row is not None:
+            new_board[row][col] = 'red' if maximizing_player else 'yellow'
         return new_board
-
-
-
-
 
 class MinMaxABAgent(Agent):
     def get_chosen_column(self, board, max_depth, heuristic='medium'):
-        # Set the heuristic function based on the selected difficulty
         if heuristic == 'easy':
             self.evaluate_window_function = self.easy_heuristic
         elif heuristic == 'medium':
@@ -162,53 +161,50 @@ class MinMaxABAgent(Agent):
 
         def minimax(board, depth, alpha, beta, maximizing_player):
             if depth == 0 or self.is_game_over(board, maximizing_player):
-                finish_state = self.is_game_over(board,maximizing_player)
-                if(finish_state  == "red"):
-                    return inf,None
+                finish_state = self.is_game_over(board, maximizing_player)
+                if finish_state == "red":
+                    return inf, None
                 if finish_state == "yellow":
-                    return -inf,None
-                
+                    return -inf, None
                 if finish_state == "equal":
-                    return 0,None
+                    return 0, None
                 return self.evaluate_state(board), None
 
-            valid_moves = self.get_possible_moves(board)
-            if not valid_moves:
+            valid_columns = self.get_valid_columns(board)
+            if not valid_columns:
                 return 0, None
 
             if maximizing_player:
                 max_eval = float('-inf')
-                best_move = valid_moves[0]  # Default to first move
-                for move in valid_moves:
-                    new_board = self.simulate_move(board, move, maximizing_player)
+                best_col = valid_columns[0]
+                for col in valid_columns:
+                    new_board = self.simulate_move(board, col, maximizing_player)
                     eval, _ = minimax(new_board, depth - 1, alpha, beta, False)
                     if eval > max_eval:
                         max_eval = eval
-                        best_move = move    
+                        best_col = col
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break
-                return max_eval, best_move
+                return max_eval, best_col
             else:
                 min_eval = float('inf')
-                best_move = valid_moves[0]  # Default to first move
-                for move in valid_moves:
-                    new_board = self.simulate_move(board, move, maximizing_player)
+                best_col = valid_columns[0]
+                for col in valid_columns:
+                    new_board = self.simulate_move(board, col, maximizing_player)
                     eval, _ = minimax(new_board, depth - 1, alpha, beta, True)
                     if eval < min_eval:
                         min_eval = eval
-                        best_move = move
+                        best_col = col
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break
-                return min_eval, best_move
+                return min_eval, best_col
 
         time_start = time.time()
-        
-        _, best_move = minimax(board, max_depth, float('-inf'), float('inf'), True)
+        _, best_col = minimax(board, max_depth, float('-inf'), float('inf'), True)
         elapsed_time = time.time() - time_start
-        return best_move,elapsed_time
-
+        return best_col, elapsed_time
 
 class NegScoutAgent(Agent):
     def get_chosen_column(self, board, max_depth, heuristic='medium'):
@@ -218,7 +214,7 @@ class NegScoutAgent(Agent):
             self.evaluate_window_function = self.medium_heuristic
         elif heuristic == 'expert':
             self.evaluate_window_function = self.expert_heuristic
-        
+
         def negscout(board, depth, alpha, beta, maximizing_player):
             if depth == 0 or self.is_game_over(board, maximizing_player):
                 finish_state = self.is_game_over(board, maximizing_player)
@@ -230,25 +226,22 @@ class NegScoutAgent(Agent):
                     return 0, None
                 return self.evaluate_state(board), None
 
-            valid_moves = self.get_possible_moves(board)
-            if not valid_moves:
+            valid_columns = self.get_valid_columns(board)
+            if not valid_columns:
                 return 0, None
 
-            best_move = valid_moves[0]
+            best_col = valid_columns[0]
             score = float('-inf') if maximizing_player else float('inf')
 
-            for i, move in enumerate(valid_moves):
-                new_board = self.simulate_move(board, move, maximizing_player)
+            for i, col in enumerate(valid_columns):
+                new_board = self.simulate_move(board, col, maximizing_player)
 
                 if i == 0:
-                    # Perform a full-window search for the first child
                     eval, _ = negscout(new_board, depth - 1, -beta, -alpha, not maximizing_player)
                     eval = -eval
                 else:
-                    # Perform a null-window search
                     eval, _ = negscout(new_board, depth - 1, -alpha - 1, -alpha, not maximizing_player)
                     eval = -eval
-                    # If the null-window search indicates this branch is promising, re-search with a full window
                     if alpha < eval < beta:
                         eval, _ = negscout(new_board, depth - 1, -beta, -eval, not maximizing_player)
                         eval = -eval
@@ -256,23 +249,25 @@ class NegScoutAgent(Agent):
                 if maximizing_player:
                     if eval > score:
                         score = eval
-                        best_move = move
+                        best_col = col
                     alpha = max(alpha, eval)
                 else:
                     if eval < score:
                         score = eval
-                        best_move = move
+                        best_col = col
                     beta = min(beta, eval)
 
                 if alpha >= beta:
                     break
 
-            return score, best_move
+            return score, best_col
 
         time_start = time.time()
-        _, best_move = negscout(board, max_depth, float('-inf'), float('inf'), True)
+        _, best_col = negscout(board, max_depth, float('-inf'), float('inf'), True)
         elapsed_time = time.time() - time_start
-        return best_move, elapsed_time
+        return best_col, elapsed_time
+
+
 
 class CompVsComp:
     def __init__(self, red_heuristic='medium', yellow_heuristic='medium', alg1="minmax", alg2="minmax", depth1=4, depth2=4, rows=6, cols=7):
