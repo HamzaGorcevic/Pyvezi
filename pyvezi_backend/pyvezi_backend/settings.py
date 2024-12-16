@@ -84,6 +84,8 @@ DATABASES = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",  
+    "https://pyvezi.onrender.com",
+    "https://pyvezi-backend.onrender.com"
 ]
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
