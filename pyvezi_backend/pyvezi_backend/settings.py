@@ -26,9 +26,10 @@ SECRET_KEY = 'django-insecure-7-v2cr^3_05s$f3fb!9547(s(+c76=s2_ztx1nvik03*(b60o9
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "https://pyvezi.onrender.com",
-    "https://pyvezi-backend.onrender.com"
+    "pyvezi.onrender.com",  # Correcting the protocol
+    "pyvezi-backend.onrender.com"
 ]
+
 
 
 # Application definition
@@ -90,6 +91,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://pyvezi.onrender.com",
     "https://pyvezi-backend.onrender.com"
 ]
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -107,7 +109,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "PATCH",
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
