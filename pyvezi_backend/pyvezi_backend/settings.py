@@ -27,7 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "pyvezi.onrender.com",  # Correcting the protocol
-    "pyvezi-backend.onrender.com"
+    "pyvezi-backend.onrender.com",
+    "127.0.0.1",
+    "127.0.0.1:5500"
+    
 ]
 
 
@@ -89,7 +92,8 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",  
     "https://pyvezi.onrender.com",
-    "https://pyvezi-backend.onrender.com"
+    "https://pyvezi-backend.onrender.com",
+    "http://127.0.0.1:8000"
 ]
 
 # Password validation

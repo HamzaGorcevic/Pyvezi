@@ -265,7 +265,7 @@ class ConnectFour {
     async createBoard() {
         this.gameBoard.innerHTML = "";
         this.board = Array.from({ length: this.ROWS }, () =>
-            Array(this.COLS).fill(null)
+            Array(this.COLS).fill(0)
         );
 
         for (let row = 0; row < this.ROWS; row++) {
@@ -344,6 +344,12 @@ class ConnectFour {
             this.isLoadingFromFile == false
         ) {
             this.computerTurn(this.computerDifficulty, this.computerAlgorithm);
+        } else if (this.gameMode == "computer-vs-computer") {
+            if (this.currentPlayer == "red") {
+                this.computerTurn(this.choosenDif1, this.choosenAlg1);
+            } else {
+                this.computerTurn(this.choosenDif2, this.choosenAlg2);
+            }
         }
 
         // this.continueWithGameMode();
@@ -351,7 +357,7 @@ class ConnectFour {
 
     findAvailableRow(col) {
         for (let row = this.ROWS - 1; row >= 0; row--) {
-            if (!this.board[row][col]) return row;
+            if (this.board[row][col] == 0) return row;
         }
         return null;
     }
@@ -394,7 +400,7 @@ class ConnectFour {
     }
 
     checkDraw() {
-        return this.board.every((row) => row.every((cell) => cell !== null));
+        return this.board.every((row) => row.every((cell) => cell !== 0));
     }
 
     async computerTurn(difficulty, algorithm) {
@@ -402,12 +408,20 @@ class ConnectFour {
         const startTime = Date.now();
 
         try {
+            const boardState = this.board.map((row) =>
+                row.map((cell) => {
+                    if (cell === "red") return 1;
+                    if (cell === "yellow") return 2;
+                    return 0; // Empty cell
+                })
+            );
+
             const response = await fetch(
                 `https://pyvezi-backend.onrender.com/game/computer_move/?mode=${difficulty}&algorithm=${algorithm}`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ board: this.board }),
+                    body: JSON.stringify({ board: boardState }),
                 }
             );
 
