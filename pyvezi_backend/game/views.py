@@ -28,6 +28,8 @@ def computer_move(request):
     else:
         return JsonResponse({"error": "Invalid method"}, status=400)
     
+def alive():
+    return JsonResponse({"alive":"thanks for checking me :D"})
 # def comp_vs_comp(request):
 #     if request.method == "GET":
 #         mode1 = request.GET.get("mode1")
