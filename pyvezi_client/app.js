@@ -334,7 +334,7 @@ class ConnectFour {
             );
 
             const response = await fetch(
-                `https://pyvezi.onrender.com/game/computer_move/?mode=${difficulty}&algorithm=${algorithm}`,
+                `https://pyvezi-backend.onrender.com/game/computer_move/?mode=${difficulty}&algorithm=${algorithm}`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
