@@ -16,7 +16,7 @@ def computer_move(request):
         else: 
             agent = MinMaxABAgent()
 
-        max_depth = 2 if mode == 'easy' else 4 if mode == 'medium' else 6 if mode == 'expert' else None
+        max_depth = 3 if mode == 'easy' else 4 if mode == 'medium' else 5 if mode == 'expert' else None
         heuristic = mode if mode in ['easy', 'medium', 'expert'] else None
 
         if max_depth is None or heuristic is None:
