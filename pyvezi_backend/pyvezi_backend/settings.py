@@ -29,7 +29,8 @@ ALLOWED_HOSTS = [
     "pyvezi.onrender.com",  # Correcting the protocol
     "pyvezi-backend.onrender.com",
     "127.0.0.1",
-    "127.0.0.1:5500"
+    "127.0.0.1:5500",
+    "pyvezi-production.up.railway.app"
     
 ]
 
@@ -98,7 +99,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",  
     "https://pyvezi.onrender.com",
     "https://pyvezi-backend.onrender.com",
-    "http://127.0.0.1:8000"
+    "http://127.0.0.1:8000",
+    "https://pyvezi-production.up.railway.app"
 ]
 
 # Password validation
