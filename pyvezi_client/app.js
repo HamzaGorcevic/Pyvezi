@@ -334,7 +334,7 @@ class ConnectFour {
             );
 
             const response = await fetch(
-                `http://127.0.0.1:8000/game/computer_move/?mode=${difficulty}&algorithm=${algorithm}`,
+                `https://pyvezi-production.up.railway.app/game/computer_move/?mode=${difficulty}&algorithm=${algorithm}`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
