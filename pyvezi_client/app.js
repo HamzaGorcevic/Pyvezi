@@ -63,6 +63,54 @@ class ConnectFour {
             .filter((num) => !isNaN(num) && num >= 0 && num < this.COLS);
     }
 
+    resetGame() {
+        // Reset game state
+        this.board = [];
+        this.currentPlayer = "red";
+        this.elapsedTime = 0;
+        this.gameMode = "";
+        this.fileContent = "";
+        this.storedMoves = [];
+        this._isPaused = false;
+
+        // Reset computer settings
+        this.choosenDif1 = "";
+        this.choosenDif2 = "";
+        this.choosenAlg1 = "";
+        this.choosenAlg2 = "";
+        this.computerDifficulty = "";
+        this.computerAlgorithm = "";
+
+        // Clear the game board UI
+        this.gameBoard.innerHTML = "";
+        this.gameBoard.style.display = "none";
+
+        // Reset status displays
+        this.statusDisplay.textContent = "";
+        this.thinkingTime.textContent = "";
+
+        // Hide game elements
+        this.statusDiv.style.display = "none";
+        this.restartButton.style.display = "none";
+
+        // Clear file status if it exists
+        const fileStatus = document.getElementById("file-status");
+        if (fileStatus) {
+            fileStatus.textContent = "";
+        }
+
+        // Clear file input if it exists
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) {
+            fileInput.value = "";
+        }
+
+        // Hide difficulty modal if open
+        this.difficultyModal.style.display = "none";
+
+        // Show game mode modal to start over
+        this.showGameModeModal();
+    }
     async handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
